@@ -33,7 +33,20 @@ public class DatabaseQuerier {
 	
 	public String databaseMetaToString() throws DatabaseQuerierException{
 		try {
+		
+			StringBuilder sb = new StringBuilder();
+			DatabaseMetaData dbMeta = server.getMetaData();
+
+
+			ResultSet resultSet = dbMeta.getTables(null, "dbo", null, new String[]{"TABLE"});
+
+			while (resultSet.next()) {
+				String tableName = resultSet.getString("TABLE_NAME");
+				TableQuerier tq  = new TableQuerier(tableName, stmts, dbMeta);
+				sb.append(tq.printMetaAndData(dbMeta) + "\n\n\n");
+			}
 			
+			return sb.toString();
 		}
 		catch(SQLException e) {
 			e.printStackTrace();

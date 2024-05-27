@@ -19,39 +19,9 @@ public class Database {
 		
 	 	try (Connection dbConnection = DriverManager.getConnection(DATABASE_URL);){
 			 
-			 Statement stmt = dbConnection.createStatement();
-			 stmt.execute("USE PREMIERECO");
-
-	 		dbConnection.setAutoCommit(false);
-	 		
-	 		DatabaseMetaData dbMeta = dbConnection.getMetaData();
-	 		
-	 		
-	 		  ResultSet resultSet = dbMeta.getTables(null, "dbo", null, new String[]{"TABLE"});
-
-	            while (resultSet.next()) {
-	                String tableName = resultSet.getString("TABLE_NAME");
-	                System.out.println("Table name: " + tableName);
-	                
-	                ResultSet columns = dbMeta.getColumns(null, "dbo", tableName, null);
-	                
-	                ResultSet data = getDataFromTable(stmt, tableName);
-	                
-	                while(columns.next()) {
-	                	String colName = columns.getString("COLUMN_NAME");
-	                	String dataTypeName = columns.getString("TYPE_NAME");
-	                	System.out.println("\tColumn: " + colName + "\t\tDataType: " + dataTypeName);
-	                	
-	                }
-	                
-	        		columns = dbMeta.getColumns(null, "dbo", tableName, null);
-	        		while(columns.next()) {
-	        			System.out.print(columns.getString("COLUMN_NAME") + "\t\t");
-	        		}
-	        		System.out.println();
-	        		
-                	
-	            }
+			 DatabaseQuerier dq = new DatabaseQuerier(dbConnection);
+			 dq.switchDatabase("PREMIERECO");
+			 System.out.println(dq.databaseMetaToString());
 	 		
 
 			 /*
@@ -75,7 +45,10 @@ Be mindful to use RowSetMetaData as a guide when iterating through the table row
 		 catch(SQLException e) {
 			 System.out.println("Something went wrong with the database");
 			 e.printStackTrace();
-		 }
+		 } catch (DatabaseQuerierException e) {
+			System.out.println("Something went wrong while we were querying the database.");
+			e.printStackTrace();
+		}
 	 	
 		 System.out.println("Connection closed.");
 
