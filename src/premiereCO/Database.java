@@ -93,6 +93,10 @@ Be mindful to use RowSetMetaData as a guide when iterating through the table row
 
 	
 	private static void demonstrateSavepoints(Connection dbConnection) {
+		System.out.println("Let's add some parts to our store.");
+		
+		System.out.println("Let's add the first part.");
+		
 		/*
 		 * Task 3: Working with Savepoints and Rollbacks
 
@@ -103,6 +107,9 @@ and then rollback to the savepoint, effectively undoing the changes.
 
 		 */
 	}
+	
+
+	
 	
 
 }
