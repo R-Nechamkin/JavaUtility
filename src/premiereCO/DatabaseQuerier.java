@@ -31,7 +31,7 @@ public class DatabaseQuerier {
 		}
 	}
 	
-	public String databaseMetaToString() throws DatabaseQuerierException{
+	public String printMetaAndData() throws DatabaseQuerierException{
 		try {
 		
 			StringBuilder sb = new StringBuilder();
