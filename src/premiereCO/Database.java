@@ -2,14 +2,10 @@ package premiereCO;
 
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.math.BigDecimal;
+import java.sql.*;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.Scanner;
 
 public class Database {
@@ -29,7 +25,7 @@ public class Database {
 
 
 			demonstratePreparedStatements("PART", "PRICE", dbConnection);
-
+			demonstrateSavepointsWithPartTable(dbConnection);
 			/*
 			 * Use either RowSet or ResultSet to read all data from the database.
 
@@ -92,11 +88,50 @@ Be mindful to use RowSetMetaData as a guide when iterating through the table row
 	}
 
 	
-	private static void demonstrateSavepoints(Connection dbConnection) {
+	private static void demonstrateSavepointsWithPartTable(Connection dbConnection) throws SQLException {
+		Statement  stmt = dbConnection.createStatement();
+
 		System.out.println("Let's add some parts to our store.");
-		
-		System.out.println("Let's add the first part.");
-		
+
+		//give user choice between adding another part, creating savepoint, rolling back to savepoint, or quitting
+		Scanner sc = new Scanner(System.in);
+		Deque<Savepoint> savepoints = new ArrayDeque<>();
+		String input = "";
+		while(!input.equals("Q")) {
+			System.out.println("Enter 'A' to add a part, 'S' to create a savepoint, 'R' to rollback to the savepoint, or 'Q' to quit and commit your changes.");
+			input = sc.nextLine();
+
+			switch(input) {
+				case "A":
+					System.out.println("Let's add a part.");
+					Part p2 = getPart(System.in, System.out);
+					stmt.execute(p2.createInsertStatement());
+					break;
+				case "S":
+					System.out.println("What would you like to name the savepoint?");
+					System.out.println("Creating a savepoint.");
+					Savepoint savepoint = dbConnection.setSavepoint(sc.nextLine());
+					savepoints.push(savepoint);
+					break;
+				case "R":
+					if(savepoints.isEmpty()) {
+						System.out.println("There are no savepoints to rollback to.");
+					}
+					else {
+						dbConnection.rollback();
+						System.out.println("Rolled back to the previous savepoint of " + savepoints.peek().getSavepointName());
+						savepoints.pop();
+					}
+					break;
+				case "Q":
+					System.out.println("Committing and quitting.");
+					break;
+				default:
+					System.out.println("That was not a valid choice.");
+					break;
+			}
+		}
+	}
 		/*
 		 * Task 3: Working with Savepoints and Rollbacks
 
@@ -106,6 +141,35 @@ Show how you can set a savepoint during a transaction, make some changes,
 and then rollback to the savepoint, effectively undoing the changes.
 
 		 */
+
+
+
+
+	/**
+	 * This method will prompt the user for the information needed to create a Part object.
+	 * @param in
+	 * @param out
+	 * @return
+	 */
+
+	public static Part getPart(InputStream in, PrintStream out) {
+		Scanner sc = new Scanner(in);
+		out.println("Enter the part number:");
+		String partNum = sc.nextLine();
+		out.println("Enter the part description:");
+		String description = sc.nextLine();
+		out.println("Enter the number of units on hand:");
+		int unitsOnHand = sc.nextInt();
+		sc.nextLine();
+		out.println("Enter the category:");
+		String category = sc.nextLine();
+		out.println("Enter the warehouse:");
+		int warehouse = sc.nextInt();
+		sc.nextLine();
+		out.println("Enter the price:");
+		BigDecimal price = sc.nextBigDecimal();
+		sc.nextLine();
+		return new Part(partNum, description, unitsOnHand, category, warehouse, price);
 	}
 	
 

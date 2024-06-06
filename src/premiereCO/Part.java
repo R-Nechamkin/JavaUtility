@@ -11,7 +11,7 @@ public class Part extends DBTable{
 	BigDecimal price;
 	
 	
-	
+
 	
 	public Part(String partNum, String description, int unitsOnHand, String category, int warehouse, BigDecimal price) {
 		super();
@@ -29,5 +29,9 @@ public class Part extends DBTable{
 	public String createInsertStatement() {
 		return String.format("INSERT [dbo].[PART] ([PART_NUM], [PART_DESCRIPTION], [UNITS_ON_HAND], [CATEGORY], [WAREHOUSE], [PRICE]) "
 				+ "VALUES ('%s', '%s', %d, '%s', %d, %s)", partNum, description, unitsOnHand, category, warehouse, price.toString());
+	}
+
+	public String toString() {
+		return String.format("Part Number: %s\nDescription: %s\nUnits on Hand: %d\nCategory: %s\nWarehouse: %d\nPrice: %s", partNum, description, unitsOnHand, category, warehouse, price.toString());
 	}
 }
